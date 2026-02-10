@@ -6,122 +6,87 @@
     <title>Video Feed Mini App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://alwingulla.com/88/p.js" data-zone="10592465" data-sdk="show_10592465"></script>
     <style>
+        body { transition: background-color 0.3s, color 0.3s; }
         .dark { background-color: #1a1a1a; color: #ffffff; }
-        .card { transition: all 0.3s ease; }
         .dark .card { background-color: #2d2d2d; border-color: #404040; }
+        .dark .bg-gray-100 { background-color: #3d3d3d; }
+        .dark .text-gray-500, .dark .text-gray-400 { color: #a0a0a0; }
+        .card { border-radius: 4px; border: 1px solid #e5e7eb; margin-bottom: 8px; }
     </style>
 </head>
-<body class="bg-gray-100 p-4 font-sans transition-colors duration-300" id="body">
+<body class="bg-gray-50 p-3 font-sans" id="body">
 
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-xl font-bold">Mis Videos</h1>
-        <button onclick="toggleDarkMode()" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700">
-            🌙 / ☀️
-        </button>
+    <div class="flex justify-between items-center mb-4 px-1">
+        <h1 class="text-lg font-semibold text-gray-700 dark:text-gray-200">Recetas Con Doña...</h1>
+        <button onclick="toggleDarkMode()" class="text-xl">🌙</button>
     </div>
 
-    <div id="video-list" class="space-y-3">
-        <div onclick="playVideo('Video 1')" class="card bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex items-center cursor-pointer hover:shadow-md">
-            <div class="w-12 h-12 bg-gray-100 dark:bg-gray-600 flex items-center justify-center rounded text-2xl font-serif text-gray-500 dark:text-gray-300 mr-4">
-                P
-            </div>
+    <div id="video-list">
+        
+        <div onclick="playWithAds(https://www.youtube.com/shorts/lC7G-mcpwek)" class="card bg-white p-3 flex items-center cursor-pointer shadow-sm">
+            <div class="w-14 h-14 bg-gray-100 flex items-center justify-center text-3xl font-serif text-gray-400 mr-4">P</div>
             <div class="flex-grow">
                 <div class="flex justify-between items-start">
                     <div>
-                        <h3 class="font-medium text-blue-600 dark:text-blue-400">purple</h3>
+                        <h3 class="text-blue-600 dark:text-blue-400 font-medium">purple</h3>
                         <p class="text-xs text-gray-500">Publicada • 9 feb</p>
                     </div>
-                    <div class="text-right text-xs text-gray-400">
-                        <p>Recetas Con Doña...</p>
-                        <div class="flex items-center justify-end space-x-2 mt-1">
-                            <span>🔗</span> <span>💬 0</span> <span class="font-bold">👁️ 274</span>
+                    <div class="text-right">
+                        <span class="text-[10px] text-gray-400 block">Cinemaposting</span>
+                        <div class="flex items-center justify-end gap-2 mt-2 text-gray-400 text-xs">
+                            <span>🔗</span> <span>💬 0</span> <span class="font-bold text-gray-500">👁️ 274</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        </div>
 
-    <script>
-        // Inicializar Telegram Web App
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-
-        function toggleDarkMode() {
-            document.getElementById('body').classList.toggle('dark');
-        }
-
-        function playVideo(title) {
-            // Aquí es donde llamaremos al anuncio de Monetag
-            alert("Llamando al anuncio de Monetag antes de ver: " + title);
-            
-            // Lógica para mostrar el video después del anuncio...
-        }
-    </script>
-
-    </body>
-</html><!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Feed Mini App</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        .dark { background-color: #1a1a1a; color: #ffffff; }
-        .card { transition: all 0.3s ease; }
-        .dark .card { background-color: #2d2d2d; border-color: #404040; }
-    </style>
-</head>
-<body class="bg-gray-100 p-4 font-sans transition-colors duration-300" id="body">
-
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-xl font-bold">Mis Videos</h1>
-        <button onclick="toggleDarkMode()" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700">
-            🌙 / ☀️
-        </button>
-    </div>
-
-    <div id="video-list" class="space-y-3">
-        <div onclick="playVideo('Video 1')" class="card bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex items-center cursor-pointer hover:shadow-md">
-            <div class="w-12 h-12 bg-gray-100 dark:bg-gray-600 flex items-center justify-center rounded text-2xl font-serif text-gray-500 dark:text-gray-300 mr-4">
-                P
-            </div>
+        <div onclick="playWithAds('https://OTRO_VIDEO.com')" class="card bg-white p-3 flex items-center cursor-pointer shadow-sm">
+            <div class="w-14 h-14 bg-gray-100 flex items-center justify-center text-3xl font-serif text-gray-400 mr-4">S</div>
             <div class="flex-grow">
                 <div class="flex justify-between items-start">
                     <div>
-                        <h3 class="font-medium text-blue-600 dark:text-blue-400">purple</h3>
+                        <h3 class="text-blue-600 dark:text-blue-400 font-medium">suaveeee</h3>
                         <p class="text-xs text-gray-500">Publicada • 9 feb</p>
                     </div>
-                    <div class="text-right text-xs text-gray-400">
-                        <p>Recetas Con Doña...</p>
-                        <div class="flex items-center justify-end space-x-2 mt-1">
-                            <span>🔗</span> <span>💬 0</span> <span class="font-bold">👁️ 274</span>
+                    <div class="text-right">
+                        <span class="text-[10px] text-gray-400 block">Cinemaposting</span>
+                        <div class="flex items-center justify-end gap-2 mt-2 text-gray-400 text-xs">
+                            <span>🔗</span> <span>💬 0</span> <span class="font-bold text-gray-500">👁️ 232</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        </div>
+
+    </div>
 
     <script>
-        // Inicializar Telegram Web App
         const tg = window.Telegram.WebApp;
         tg.expand();
+
+        // Aplicar modo oscuro automáticamente según Telegram
+        if (tg.colorScheme === 'dark') {
+            document.getElementById('body').classList.add('dark');
+        }
 
         function toggleDarkMode() {
             document.getElementById('body').classList.toggle('dark');
         }
 
-        function playVideo(title) {
-            // Aquí es donde llamaremos al anuncio de Monetag
-            alert("Llamando al anuncio de Monetag antes de ver: " + title);
-            
-            // Lógica para mostrar el video después del anuncio...
+        // FUNCIÓN DE MONETAG INTEGRADA
+        function playWithAds(videoUrl) {
+            // Se llama a la función que te dio Monetag
+            show_10592465().then(() => {
+                // Una vez visto el anuncio, redirigimos al video
+                window.location.href = videoUrl;
+            }).catch((e) => {
+                // Si el anuncio no carga, vamos al video de todos modos
+                window.location.href = videoUrl;
+            });
         }
     </script>
-
-    </body>
+</body>
 </html>
