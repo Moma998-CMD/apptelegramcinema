@@ -3,72 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Feed Mini App</title>
+    <title>Cinemaposting App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://alwingulla.com/88/p.js" data-zone="10592465" data-sdk="show_10592465"></script>
     <style>
-        /* Fondo gris oscuro por defecto */
-        body { 
-            background-color: #121212; 
-            color: #e5e7eb; 
-            transition: all 0.3s ease; 
-        }
-        /* Estilo de las tarjetas */
-        .card { 
-            background-color: #1e1e1e; 
-            border: 1px solid #333; 
-            border-radius: 8px; 
-            margin-bottom: 12px;
-            transition: transform 0.2s;
-        }
+        body { background-color: #121212; color: #ffffff; }
+        .card { background-color: #1e1e1e; border: 1px solid #333; border-radius: 8px; margin-bottom: 10px; cursor: pointer; }
         .card:active { transform: scale(0.98); }
-        
-        /* Ajuste para modo claro si se presiona el botón */
-        .light-mode { background-color: #f3f4f6; color: #1f2937; }
-        .light-mode .card { background-color: #ffffff; border-color: #e5e7eb; }
     </style>
 </head>
-<body class="p-4 font-sans" id="body">
+<body class="p-4 font-sans">
 
-    <div class="flex justify-between items-center mb-6 px-1">
-        <h1 class="text-xl font-bold text-white" id="title">Cinemaposting</h1>
-        <button onclick="toggleTheme()" class="bg-gray-800 p-2 rounded-lg text-lg" id="themeBtn">🌙</button>
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-xl font-bold">Cinemaposting</h1>
     </div>
 
     <div id="video-list">
-        <div onclick="playWithAds('https://www.youtube.com/shorts/lC7G-mcpwek')" class="card p-4 flex items-center cursor-pointer shadow-lg">
-            <div class="w-14 h-14 bg-gray-800 flex items-center justify-center text-3xl font-serif text-gray-500 mr-4 rounded">P</div>
+        <div onclick="verVideoConAnuncio('https://www.youtube.com/shorts/lC7G-mcpwek')" class="card p-4 flex items-center">
+            <div class="w-12 h-12 bg-gray-800 flex items-center justify-center text-2xl font-serif text-gray-500 mr-4 rounded">P</div>
             <div class="flex-grow">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h3 class="text-blue-400 font-semibold">purple</h3>
-                        <p class="text-xs text-gray-500">Publicada • 9 feb</p>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-[10px] text-gray-400 block">Recetas Con Doña...</span>
-                        <div class="flex items-center justify-end gap-2 mt-2 text-gray-500 text-xs">
-                            <span>🔗</span> <span>💬 0</span> <span class="font-bold">👁️ 274</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div onclick="playWithAds('https://www.youtube.com/shorts/OTRO_VIDEO')" class="card p-4 flex items-center cursor-pointer shadow-lg">
-            <div class="w-14 h-14 bg-gray-800 flex items-center justify-center text-3xl font-serif text-gray-500 mr-4 rounded">S</div>
-            <div class="flex-grow">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h3 class="text-blue-400 font-semibold">suaveeee</h3>
-                        <p class="text-xs text-gray-500">Publicada • 9 feb</p>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-[10px] text-gray-400 block">Recetas Con Doña...</span>
-                        <div class="flex items-center justify-end gap-2 mt-2 text-gray-500 text-xs">
-                            <span>🔗</span> <span>💬 0</span> <span class="font-bold">👁️ 232</span>
-                        </div>
-                    </div>
+                <h3 class="text-blue-400 font-medium">purple</h3>
+                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>Publicada • 9 feb</span>
+                    <span>👁️ 274</span>
                 </div>
             </div>
         </div>
@@ -77,41 +35,25 @@
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        // Configurar el color de la cabecera en Telegram
         tg.setHeaderColor('#121212');
 
-        function toggleTheme() {
-            const body = document.getElementById('body');
-            const btn = document.getElementById('themeBtn');
-            const title = document.getElementById('title');
-            
-            body.classList.toggle('light-mode');
-            
-            if (body.classList.contains('light-mode')) {
-                btn.innerText = '☀️';
-                title.classList.replace('text-white', 'text-gray-800');
-                tg.setHeaderColor('#f3f4f6');
-            } else {
-                btn.innerText = '🌙';
-                title.classList.replace('text-gray-800', 'text-white');
-                tg.setHeaderColor('#121212');
-            }
-        }
-
-        function playWithAds(videoUrl) {
-            // Verifica si la función de Monetag existe
+        // 2. FUNCIÓN PARA MOSTRAR EL ANUNCIO ANTES DEL VIDEO
+        function verVideoConAnuncio(url) {
+            // Verificamos si la función de Monetag cargó correctamente
             if (typeof show_10592465 === 'function') {
                 show_10592465().then(() => {
-                    // El anuncio se vio, vamos al video
-                    window.open(videoUrl, '_blank');
+                    // El usuario terminó de ver el anuncio, ahora abrimos el video
+                    window.open(url, '_blank');
                 }).catch((e) => {
-                    // Error o anuncio bloqueado, vamos al video igual
-                    window.open(videoUrl, '_blank');
+                    // Si hay error en el anuncio, abrimos el video directamente
+                    console.error("Error con el anuncio:", e);
+                    window.open(url, '_blank');
                 });
             } else {
-                window.open(videoUrl, '_blank');
+                // Si el SDK no cargó, abrimos el video para no bloquear al usuario
+                window.open(url, '_blank');
             }
         }
     </script>
 </body>
-</html> 
+</html>
