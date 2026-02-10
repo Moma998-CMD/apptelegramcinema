@@ -8,85 +8,110 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://alwingulla.com/88/p.js" data-zone="10592465" data-sdk="show_10592465"></script>
     <style>
-        body { transition: background-color 0.3s, color 0.3s; }
-        .dark { background-color: #1a1a1a; color: #ffffff; }
-        .dark .card { background-color: #2d2d2d; border-color: #404040; }
-        .dark .bg-gray-100 { background-color: #3d3d3d; }
-        .dark .text-gray-500, .dark .text-gray-400 { color: #a0a0a0; }
-        .card { border-radius: 4px; border: 1px solid #e5e7eb; margin-bottom: 8px; }
+        /* Fondo gris oscuro por defecto */
+        body { 
+            background-color: #121212; 
+            color: #e5e7eb; 
+            transition: all 0.3s ease; 
+        }
+        /* Estilo de las tarjetas */
+        .card { 
+            background-color: #1e1e1e; 
+            border: 1px solid #333; 
+            border-radius: 8px; 
+            margin-bottom: 12px;
+            transition: transform 0.2s;
+        }
+        .card:active { transform: scale(0.98); }
+        
+        /* Ajuste para modo claro si se presiona el botón */
+        .light-mode { background-color: #f3f4f6; color: #1f2937; }
+        .light-mode .card { background-color: #ffffff; border-color: #e5e7eb; }
     </style>
 </head>
-<body class="bg-gray-50 p-3 font-sans" id="body">
+<body class="p-4 font-sans" id="body">
 
-    <div class="flex justify-between items-center mb-4 px-1">
-        <h1 class="text-lg font-semibold text-gray-700 dark:text-gray-200">Recetas Con Doña...</h1>
-        <button onclick="toggleDarkMode()" class="text-xl">🌙</button>
+    <div class="flex justify-between items-center mb-6 px-1">
+        <h1 class="text-xl font-bold text-white" id="title">Cinemaposting</h1>
+        <button onclick="toggleTheme()" class="bg-gray-800 p-2 rounded-lg text-lg" id="themeBtn">🌙</button>
     </div>
 
     <div id="video-list">
-        
-        <div onclick="playWithAds(https://www.youtube.com/shorts/lC7G-mcpwek)" class="card bg-white p-3 flex items-center cursor-pointer shadow-sm">
-            <div class="w-14 h-14 bg-gray-100 flex items-center justify-center text-3xl font-serif text-gray-400 mr-4">P</div>
+        <div onclick="playWithAds('https://www.youtube.com/shorts/lC7G-mcpwek')" class="card p-4 flex items-center cursor-pointer shadow-lg">
+            <div class="w-14 h-14 bg-gray-800 flex items-center justify-center text-3xl font-serif text-gray-500 mr-4 rounded">P</div>
             <div class="flex-grow">
                 <div class="flex justify-between items-start">
                     <div>
-                        <h3 class="text-blue-600 dark:text-blue-400 font-medium">purple</h3>
+                        <h3 class="text-blue-400 font-semibold">purple</h3>
                         <p class="text-xs text-gray-500">Publicada • 9 feb</p>
                     </div>
                     <div class="text-right">
-                        <span class="text-[10px] text-gray-400 block">Cinemaposting</span>
-                        <div class="flex items-center justify-end gap-2 mt-2 text-gray-400 text-xs">
-                            <span>🔗</span> <span>💬 0</span> <span class="font-bold text-gray-500">👁️ 274</span>
+                        <span class="text-[10px] text-gray-400 block">Recetas Con Doña...</span>
+                        <div class="flex items-center justify-end gap-2 mt-2 text-gray-500 text-xs">
+                            <span>🔗</span> <span>💬 0</span> <span class="font-bold">👁️ 274</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div onclick="playWithAds('https://OTRO_VIDEO.com')" class="card bg-white p-3 flex items-center cursor-pointer shadow-sm">
-            <div class="w-14 h-14 bg-gray-100 flex items-center justify-center text-3xl font-serif text-gray-400 mr-4">S</div>
+        <div onclick="playWithAds('https://www.youtube.com/shorts/OTRO_VIDEO')" class="card p-4 flex items-center cursor-pointer shadow-lg">
+            <div class="w-14 h-14 bg-gray-800 flex items-center justify-center text-3xl font-serif text-gray-500 mr-4 rounded">S</div>
             <div class="flex-grow">
                 <div class="flex justify-between items-start">
                     <div>
-                        <h3 class="text-blue-600 dark:text-blue-400 font-medium">suaveeee</h3>
+                        <h3 class="text-blue-400 font-semibold">suaveeee</h3>
                         <p class="text-xs text-gray-500">Publicada • 9 feb</p>
                     </div>
                     <div class="text-right">
-                        <span class="text-[10px] text-gray-400 block">Cinemaposting</span>
-                        <div class="flex items-center justify-end gap-2 mt-2 text-gray-400 text-xs">
-                            <span>🔗</span> <span>💬 0</span> <span class="font-bold text-gray-500">👁️ 232</span>
+                        <span class="text-[10px] text-gray-400 block">Recetas Con Doña...</span>
+                        <div class="flex items-center justify-end gap-2 mt-2 text-gray-500 text-xs">
+                            <span>🔗</span> <span>💬 0</span> <span class="font-bold">👁️ 232</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
+        // Configurar el color de la cabecera en Telegram
+        tg.setHeaderColor('#121212');
 
-        // Aplicar modo oscuro automáticamente según Telegram
-        if (tg.colorScheme === 'dark') {
-            document.getElementById('body').classList.add('dark');
+        function toggleTheme() {
+            const body = document.getElementById('body');
+            const btn = document.getElementById('themeBtn');
+            const title = document.getElementById('title');
+            
+            body.classList.toggle('light-mode');
+            
+            if (body.classList.contains('light-mode')) {
+                btn.innerText = '☀️';
+                title.classList.replace('text-white', 'text-gray-800');
+                tg.setHeaderColor('#f3f4f6');
+            } else {
+                btn.innerText = '🌙';
+                title.classList.replace('text-gray-800', 'text-white');
+                tg.setHeaderColor('#121212');
+            }
         }
 
-        function toggleDarkMode() {
-            document.getElementById('body').classList.toggle('dark');
-        }
-
-        // FUNCIÓN DE MONETAG INTEGRADA
         function playWithAds(videoUrl) {
-            // Se llama a la función que te dio Monetag
-            show_10592465().then(() => {
-                // Una vez visto el anuncio, redirigimos al video
-                window.location.href = videoUrl;
-            }).catch((e) => {
-                // Si el anuncio no carga, vamos al video de todos modos
-                window.location.href = videoUrl;
-            });
+            // Verifica si la función de Monetag existe
+            if (typeof show_10592465 === 'function') {
+                show_10592465().then(() => {
+                    // El anuncio se vio, vamos al video
+                    window.open(videoUrl, '_blank');
+                }).catch((e) => {
+                    // Error o anuncio bloqueado, vamos al video igual
+                    window.open(videoUrl, '_blank');
+                });
+            } else {
+                window.open(videoUrl, '_blank');
+            }
         }
     </script>
 </body>
-</html>
+</html> 
