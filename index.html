@@ -3,59 +3,457 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cinemaposting App</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://alwingulla.com/88/p.js" data-zone="10592465" data-sdk="show_10592465"></script>
+    <title>Baby Race - Prototipo Avanzado</title>
     <style>
-        body { background-color: #121212; color: #ffffff; }
-        .card { background-color: #1e1e1e; border: 1px solid #333; border-radius: 8px; margin-bottom: 10px; cursor: pointer; }
-        .card:active { transform: scale(0.98); }
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #87CEEB, #E0F6FF); /* Cielo más claro */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 400px;
+            height: 700px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #3498db; /* Color de fondo del agua */
+        }
+
+        canvas {
+            display: block;
+        }
+
+        /* Interfaz de Usuario */
+        .ui-container {
+            position: absolute;
+            top: 15px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 15px;
+            box-sizing: border-box;
+            pointer-events: none;
+        }
+
+        .ui-element {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .gem-icon { color: #e74c3c; font-size: 18px; }
+        .key-icon { color: #f1c40f; font-size: 18px; }
+
+        /* Mensaje de Fin de Juego */
+        #gameOverScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 10;
+        }
+
+        #gameOverScreen h1 { margin-bottom: 10px; }
+        #restartBtn {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
     </style>
 </head>
-<body class="p-4 font-sans">
+<body>
 
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-xl font-bold">Cinemaposting</h1>
-    </div>
+<div id="gameContainer">
+    <canvas id="gameCanvas" width="400" height="700"></canvas>
 
-    <div id="video-list">
-        <div onclick="verVideoConAnuncio('https://www.youtube.com/shorts/lC7G-mcpwek')" class="card p-4 flex items-center">
-            <div class="w-12 h-12 bg-gray-800 flex items-center justify-center text-2xl font-serif text-gray-500 mr-4 rounded">P</div>
-            <div class="flex-grow">
-                <h3 class="text-blue-400 font-medium">purple</h3>
-                <div class="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>Publicada • 9 feb</span>
-                    <span>👁️ 274</span>
-                </div>
-            </div>
+    <div class="ui-container">
+        <div class="ui-element">
+            <span class="gem-icon">♦</span>
+            <span id="gemCountDisplay">0</span>
+        </div>
+        <div class="ui-element">
+            <span id="keyCountDisplay">0</span>
+            <span class="key-icon">🔑</span>
         </div>
     </div>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.setHeaderColor('#121212');
+    <div id="gameOverScreen">
+        <h1 id="gameOverTitle">¡Juego Terminado!</h1>
+        <p id="gameOverMessage"></p>
+        <button id="restartBtn">Jugar de nuevo</button>
+    </div>
+</div>
 
-        // 2. FUNCIÓN PARA MOSTRAR EL ANUNCIO ANTES DEL VIDEO
-        function verVideoConAnuncio(url) {
-            // Verificamos si la función de Monetag cargó correctamente
-            if (typeof show_10592465 === 'function') {
-                show_10592465().then(() => {
-                    // El usuario terminó de ver el anuncio, ahora abrimos el video
-                    window.open(url, '_blank');
-                }).catch((e) => {
-                    // Si hay error en el anuncio, abrimos el video directamente
-                    console.error("Error con el anuncio:", e);
-                    window.open(url, '_blank');
-                });
-            } else {
-                // Si el SDK no cargó, abrimos el video para no bloquear al usuario
-                window.open(url, '_blank');
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const gameOverScreen = document.getElementById('gameOverScreen');
+    const gameOverTitle = document.getElementById('gameOverTitle');
+    const gameOverMessage = document.getElementById('gameOverMessage');
+    const restartBtn = document.getElementById('restartBtn');
+
+    // --- Variables Globales ---
+    let gameSpeed = 4;
+    let distanceTraveled = 0;
+    const finishLineDistance = 5000; // Distancia para llegar al óvulo
+    let isGameOver = false;
+    let animationId;
+
+    // --- Jugador (Enjambre) ---
+    let player = {
+        x: canvas.width / 2,
+        y: canvas.height - 150,
+        count: 1,
+        particles: [],
+        targetX: canvas.width / 2,
+        isGolden: false
+    };
+
+    // --- Clases ---
+
+    class Particle {
+        constructor() {
+            this.offsetX = (Math.random() - 0.5) * 40;
+            this.offsetY = (Math.random() - 0.5) * 40;
+            this.angle = Math.random() * Math.PI * 2;
+            this.wobbleSpeed = 0.1 + Math.random() * 0.1;
+        }
+
+        draw(centerX, centerY, isGolden) {
+            // Movimiento ondulante
+            this.angle += this.wobbleSpeed;
+            const x = centerX + this.offsetX + Math.sin(this.angle) * 5;
+            const y = centerY + this.offsetY + Math.cos(this.angle) * 2;
+
+            ctx.fillStyle = isGolden ? '#f1c40f' : '#ffffff';
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, Math.PI * 2); // Cabeza
+            ctx.fill();
+
+            // Cola
+            ctx.strokeStyle = isGolden ? '#f39c12' : '#ecf0f1';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(x, y + 3);
+            ctx.quadraticCurveTo(x + Math.sin(this.angle * 2) * 4, y + 10, x, y + 15);
+            ctx.stroke();
+        }
+    }
+
+    class Gate {
+        constructor(y) {
+            this.y = y;
+            this.height = 50;
+            this.passed = false;
+            
+            // Lógica de generación de puertas (más equilibrada)
+            const types = ['add', 'multiply', 'subtract', 'divide'];
+            this.leftType = types[Math.floor(Math.random() * 2)]; // Solo add o multiply en la izquierda
+            this.rightType = types[Math.floor(Math.random() * 2) + 2]; // Solo subtract o divide en la derecha
+            
+            // A veces intercambiamos para que no siempre sea bueno a la izquierda
+            if (Math.random() > 0.5) {
+                let temp = this.leftType;
+                this.leftType = this.rightType;
+                this.rightType = temp;
+            }
+
+            this.leftValue = this.generateValue(this.leftType);
+            this.rightValue = this.generateValue(this.rightType);
+        }
+
+        generateValue(type) {
+            switch(type) {
+                case 'add': return Math.floor(Math.random() * 20) + 10;
+                case 'multiply': return Math.floor(Math.random() * 3) + 2;
+                case 'subtract': return Math.floor(Math.random() * 15) + 5;
+                case 'divide': return Math.floor(Math.random() * 2) + 2;
             }
         }
-    </script>
-    <script src='//libtl.com/sdk.js' data-zone='10592465' data-sdk='show_10592465'></script>
+
+        draw() {
+            // Puerta Izquierda
+            ctx.fillStyle = this.getColor(this.leftType);
+            ctx.globalAlpha = 0.8;
+            ctx.fillRect(0, this.y, canvas.width / 2, this.height);
+            ctx.globalAlpha = 1.0;
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = "center";
+            ctx.fillText(`${this.getSymbol(this.leftType)}${this.leftValue}`, canvas.width / 4, this.y + 35);
+
+            // Puerta Derecha
+            ctx.fillStyle = this.getColor(this.rightType);
+            ctx.globalAlpha = 0.8;
+            ctx.fillRect(canvas.width / 2, this.y, canvas.width / 2, this.height);
+            ctx.globalAlpha = 1.0;
+            ctx.fillStyle = 'white';
+            ctx.fillText(`${this.getSymbol(this.rightType)}${this.rightValue}`, (canvas.width / 4) * 3, this.y + 35);
+        }
+
+        getColor(type) {
+            if (type === 'add' || type === 'multiply') return '#2ecc71'; // Verde
+            return '#e74c3c'; // Rojo
+        }
+
+        getSymbol(type) {
+            switch(type) {
+                case 'add': return '+';
+                case 'multiply': return 'x';
+                case 'subtract': return '-';
+                case 'divide': return '÷';
+            }
+        }
+
+        update() {
+            this.y += gameSpeed;
+        }
+    }
+
+    class Goal {
+        constructor(y) {
+            this.y = y;
+            this.radius = 80;
+        }
+
+        draw() {
+            ctx.fillStyle = '#ffb6c1'; // Color rosa claro para el óvulo
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#ff69b4';
+            ctx.lineWidth = 5;
+            ctx.stroke();
+
+            // Dibujar núcleo
+            ctx.fillStyle = '#ff69b4';
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, this.y, this.radius * 0.4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        update() {
+            this.y += gameSpeed;
+        }
+    }
+
+    let gates = [];
+    let goal = null;
+
+    // --- Controles ---
+    canvas.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        player.targetX = e.clientX - rect.left;
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault(); // Evitar scroll
+        const rect = canvas.getBoundingClientRect();
+        player.targetX = e.touches[0].clientX - rect.left;
+    }, { passive: false });
+
+
+    // --- Funciones del Juego ---
+
+    function initGame() {
+        isGameOver = false;
+        distanceTraveled = 0;
+        player.count = 5; // Empezamos con 5
+        player.targetX = canvas.width / 2;
+        player.x = canvas.width / 2;
+        player.isGolden = false;
+        gates = [];
+        goal = null;
+        gameOverScreen.style.display = 'none';
+        
+        // Crear puertas iniciales
+        for (let i = 1; i <= 3; i++) {
+            gates.push(new Gate(-i * 400));
+        }
+
+        updateParticles();
+        gameLoop();
+    }
+
+    function updateParticles() {
+        // Ajustar el número de partículas visuales según el conteo (con un límite para rendimiento)
+        const visualCount = Math.min(player.count, 50); 
+        
+        if (player.particles.length < visualCount) {
+            for (let i = player.particles.length; i < visualCount; i++) {
+                player.particles.push(new Particle());
+            }
+        } else if (player.particles.length > visualCount) {
+            player.particles.splice(visualCount);
+        }
+
+        // Ajustar dispersión según cantidad
+        const spread = Math.min(20 + (player.count * 0.5), 80);
+        player.particles.forEach(p => {
+            // Recalcular offset si es necesario para mantenerlos dentro del área de dispersión
+            if(Math.abs(p.offsetX) > spread) p.offsetX = (Math.random() - 0.5) * spread * 2;
+            if(Math.abs(p.offsetY) > spread) p.offsetY = (Math.random() - 0.5) * spread * 2;
+        });
+    }
+
+    function applyGateLogic(gate) {
+        if (player.x < canvas.width / 2) {
+            if (gate.leftType === 'add') player.count += gate.leftValue;
+            if (gate.leftType === 'multiply') player.count *= gate.leftValue;
+            if (gate.leftType === 'subtract') player.count -= gate.leftValue;
+            if (gate.leftType === 'divide') player.count = Math.floor(player.count / gate.leftValue);
+        } else {
+            if (gate.rightType === 'add') player.count += gate.rightValue;
+            if (gate.rightType === 'multiply') player.count *= gate.rightValue;
+            if (gate.rightType === 'subtract') player.count -= gate.rightValue;
+            if (gate.rightType === 'divide') player.count = Math.floor(player.count / gate.rightValue);
+        }
+
+        if (player.count <= 0) {
+            endGame(false, "¡Te quedaste sin nadadores!");
+        } else {
+            // Cambiar estilo si supera cierto número
+            player.isGolden = player.count >= 100;
+            updateParticles();
+        }
+    }
+
+    function endGame(win, message) {
+        isGameOver = true;
+        cancelAnimationFrame(animationId);
+        gameOverTitle.innerText = win ? "¡Misión Cumplida!" : "Fin del Juego";
+        gameOverMessage.innerText = message;
+        gameOverScreen.style.display = 'flex';
+    }
+
+    function drawTrack() {
+        // Dibujar líneas de velocidad en el agua
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.lineWidth = 2;
+        for (let i = 0; i < 5; i++) {
+            let y = (distanceTraveled * 2 + i * 150) % canvas.height;
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2 - 100, y);
+            ctx.lineTo(canvas.width / 2 - 100, y + 50);
+            ctx.moveTo(canvas.width / 2 + 100, y);
+            ctx.lineTo(canvas.width / 2 + 100, y + 50);
+            ctx.stroke();
+        }
+        
+        // Línea central punteada
+        ctx.setLineDash([20, 20]);
+        ctx.beginPath();
+        ctx.moveTo(canvas.width / 2, 0);
+        ctx.lineTo(canvas.width / 2, canvas.height);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+
+    function gameLoop() {
+        if (isGameOver) return;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Movimiento de jugador
+        player.x += (player.targetX - player.x) * 0.15;
+        // Limites
+        if (player.x < 30) player.x = 30;
+        if (player.x > canvas.width - 30) player.x = canvas.width - 30;
+
+        distanceTraveled += gameSpeed;
+
+        drawTrack();
+
+        // Generar meta
+        if (distanceTraveled > finishLineDistance && !goal) {
+            goal = new Goal(-200);
+        }
+
+        // Dibujar y actualizar meta
+        if (goal) {
+            goal.update();
+            goal.draw();
+            
+            // Colisión con la meta
+            if (goal.y + goal.radius > player.y) {
+                endGame(true, `¡Llegaste con ${player.count} nadadores!`);
+                return;
+            }
+        }
+
+        // Actualizar y dibujar puertas
+        for (let i = 0; i < gates.length; i++) {
+            let gate = gates[i];
+            gate.update();
+            gate.draw();
+
+            // Colisión
+            if (!gate.passed && player.y <= gate.y + gate.height && player.y >= gate.y) {
+                gate.passed = true;
+                applyGateLogic(gate);
+            }
+
+            // Reciclar puertas (si no ha aparecido la meta)
+            if (gate.y > canvas.height && !goal) {
+                gates.splice(i, 1);
+                // Asegurar distancia entre puertas
+                let highestY = Math.min(...gates.map(g => g.y));
+                gates.push(new Gate(highestY - 400));
+                i--;
+            }
+        }
+
+        // Dibujar jugador (partículas)
+        player.particles.forEach(p => p.draw(player.x, player.y, player.isGolden));
+
+        // Dibujar el número central
+        ctx.fillStyle = player.isGolden ? '#f39c12' : '#333';
+        ctx.font = 'bold 22px Arial';
+        ctx.textAlign = "center";
+        // Fondo blanco para el texto para que se lea mejor
+        ctx.shadowColor="white";
+        ctx.shadowBlur=7;
+        ctx.lineWidth=3;
+        ctx.strokeText(player.count, player.x, player.y - 40);
+        ctx.shadowBlur=0;
+        ctx.fillText(player.count, player.x, player.y - 40);
+
+        animationId = requestAnimationFrame(gameLoop);
+    }
+
+    restartBtn.addEventListener('click', initGame);
+
+    // Iniciar
+    initGame();
+
+</script>
+
 </body>
 </html>
-
